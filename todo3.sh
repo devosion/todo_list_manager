@@ -6,7 +6,6 @@
 todo_dir="$HOME/.todo3"
 
 # formatting and various
-ybold="\e[01;33m"
 bold="\e[01;37m"
 rst="\e[m"
 
@@ -28,13 +27,13 @@ DisplayUsage() {
     printf "\n${bold}USAGE${rst}
 ./todo3.sh [option]
 
-${bold}OPTIONS\t\t\tDESCRIPTION${rst}
-show-lists\t\tDisplay all todo lists.
-show-entries [list]\tDisplay contents of a todo list.
-delete-entry [list]\tDelete an entry from a todo list.
-add-entry [list]\tAdd a new entry to a todo list.
-create-list [list]\tCreate a new todo list.
-delete-list [list]\tDelete an existing todo list. Deletes all entries.\n"
+${bold}OPTIONS\t\t\tSHORT\t\tDESCRIPTION${rst}
+show-lists\t\t-sl\t\tDisplay all todo lists.
+show-entries [list]\t-se [list]\tDisplay entries in a todo list.
+delete-entry [list]\t-de [list]\tDelete an entry from a todo list.
+add-entry [list]\t-ae [list]\tAdd a new entry to a todo list.
+create-list [list]\t-cl [list]\tCreate a new todo list.
+delete-list [list]\t-dl [list]\tDeletes an existing todo list.\n\n"
 
     exit 1
 
@@ -64,13 +63,13 @@ ValidateList() {
 
     # check for a valid list name
     for list in $todo_dir/*; do
-        if [ $1 == $(echo $list | awk -F'/' '{print $5}') ]; then
+        if [[ $1 == $(echo $list | awk -F'/' '{print $5}') ]]; then
             valid_list=1
         fi
     done
 
     # exit if list_name couldn't be validated
-    if [ $valid_list -ne 1 ]; then
+    if [[ $valid_list -ne 1 ]]; then
         printf "ERROR: Invalid list specified.\n"
         DisplayUsage
     fi
@@ -90,7 +89,7 @@ DisplayEntries() {
     file_path="$todo_dir/$list_name"
 
     # if the list is empty then display message and exit
-    if [ ! -s $file_path ]; then
+    if [[ ! -s $file_path ]]; then
         printf "List is empty.\n"
         DisplayUsage
 
@@ -137,8 +136,8 @@ DeleteEntry() {
     read delete_line
 
     # quit if q is entered
-    if [ $delete_line == "q" ]; then
-        printf "\nExiting."
+    if [[ $delete_line == "q" ]]; then
+        printf "\nExiting.\n"
         exit
     fi
 
@@ -148,14 +147,14 @@ Delete the preceding line? (y for yes): "
     read user_confirm
 
     # check if user_confirm is not y
-    if [ $user_confirm != "y" ]; then
-        printf "\nNo deletion occured. Exiting."
+    if [[ $user_confirm != "y" ]]; then
+        printf "\nNo deletion occured. Exiting.\n"
         exit
 
     else
         # delete specified line
         sed -i "$delete_line"'d' "$file_path" 
-        printf "\nLine deleted. Exiting."
+        printf "\nLine deleted. Exiting.\n"
         exit
 
     fi
@@ -182,8 +181,8 @@ AddEntry() {
     read new_entry
 
     # quit if q is entered
-    if [ "$new_entry" == "q" ]; then
-        printf "\nExiting."
+    if [[ "$new_entry" == "q" ]]; then
+        printf "\nExiting.\n"
         exit
     fi
     
@@ -193,14 +192,14 @@ Add the preceding line to $list_name? (y for yes): "
     read user_confirm
 
     # check if user_confirm is not y
-    if [ $user_confirm != "y" ]; then
-        printf "\nEntry not added to '$list_name'. Exiting."
+    if [[ $user_confirm != "y" ]]; then
+        printf "\nEntry not added to '$list_name'. Exiting.\n"
         exit
 
     else
         # append new entry to list_name
         printf "$date\t$new_entry\n" >> $file_path
-        printf "\nYour new entry has been added to '$list_name'. Exiting."
+        printf "\nYour new entry has been added to '$list_name'. Exiting.\n"
 
     fi
 
@@ -217,19 +216,19 @@ CreateList () {
 
     # check for duplicate of new_list
     for list in $todo_dir/*; do
-        if [ $new_list == $(echo $list | awk -F'/' '{print $5}') ]; then
+        if [[ $new_list == $(echo $list | awk -F'/' '{print $5}') ]]; then
             existing_list=1
         fi
     done
 
     # if existing_list is 1 then exit, otherwise make the new list
-    if [ $existing_list -eq 1 ]; then
+    if [[ $existing_list -eq 1 ]]; then
         printf "ERROR: List exists.\n"
         DisplayUsage
 
     else
         touch "$todo_dir/$new_list"
-        printf "Todo list '$new_list' created. Exiting."
+        printf "Todo list '$new_list' created. Exiting.\n"
     fi
 
 }
@@ -247,13 +246,13 @@ DeleteList () {
     read user_confirm
 
     # if user_confirm is not y then exit without deleting
-    if [ $user_confirm != "y" ]; then
-        printf "\nNo list deletion occurred. Exiting."
+    if [[ $user_confirm != "y" ]]; then
+        printf "\nNo list deletion occurred. Exiting.\n"
         exit
 
     else
         rm "$todo_dir/$delete_list"
-        printf "\nList '$delete_list' deleted. Exiting."
+        printf "\nList '$delete_list' deleted. Exiting.\n"
 
     fi
 
@@ -270,13 +269,13 @@ if [ -z $1 ]; then
     DisplayUsage
 
 # process passed argument 'show-lists'
-# USAGE: ./todo3.sh show-lists
-elif [ $1 == "show-lists" ]; then
+# USAGE: ./todo3.sh show-lists or ./todo3.sh -s
+elif [[ $1 == "show-lists" || $1 == "-sl" ]]; then
     DisplayLists
 
 # process passed argument 'show-entries'
-# USAGE: ./todo3.sh show-entries [list]
-elif [ $1 == "show-entries" ]; then
+# USAGE: ./todo3.sh show-entries [list] or ./todo3.sh -e [list]
+elif [[ $1 == "show-entries" || $1 == "-se" ]]; then
     # checks for empty second argument
     if [ -z $2 ]; then
         printf "ERROR: No todo list specified.\n"
@@ -287,8 +286,8 @@ elif [ $1 == "show-entries" ]; then
     DisplayEntries $2
 
 # process passed argument 'delete-entry'
-# USAGE: ./todo3.sh delete-entry [list]
-elif [ $1 == "delete-entry" ]; then
+# USAGE: ./todo3.sh delete-entry [list] or ./todo3.sh -de [list]
+elif [[ $1 == "delete-entry" || $1 == "-de" ]]; then
     # checks for empty second argument
     if [ -z $2 ]; then
         printf "ERROR: No todo list specified.\n"
@@ -299,8 +298,8 @@ elif [ $1 == "delete-entry" ]; then
     DeleteEntry $2
 
 # process passed argument 'add-entry'
-# USAGE: ./todo3.sh add-entry [list]
-elif [ $1 == "add-entry" ]; then
+# USAGE: ./todo3.sh add-entry [list] or ./todo3 -ae [list]
+elif [[ $1 == "add-entry" || $1 == "-ae" ]]; then
     # checks for empty second argument
     if [ -z $2 ]; then
         printf "ERROR: No todo list specified.\n"
@@ -311,8 +310,8 @@ elif [ $1 == "add-entry" ]; then
     AddEntry $2
 
 # process passed argument 'create-list'
-# USAGE ./todo3.sh create-list [list]
-elif [ $1 == "create-list" ]; then
+# USAGE ./todo3.sh create-list [list] or ./todo3 -cl [list]
+elif [[ $1 == "create-list" || $1 == "-cl" ]]; then
     # checks for empty second argument
     if [ -z $2 ]; then
         printf "ERROR: No new todo list specified.\n"
@@ -323,8 +322,8 @@ elif [ $1 == "create-list" ]; then
     CreateList $2
 
 # process passed argument 'delete-list'
-# USAGE ./todo3.sh delete-list [list]
-elif [ $1 == "delete-list" ]; then
+# USAGE ./todo3.sh delete-list [list] or ./todo3 -dl [list]
+elif [[ $1 == "delete-list" || $1 == "-dl" ]]; then
     # checks for empty second argument
     if [ -z $2 ]; then
         printf "ERROR: No todo list specified.\n"
