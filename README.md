@@ -5,7 +5,8 @@
 
 <table>
 <tr>
-<td><b>OPTIONS</b><b>DESCRIPTION</b></td>
+<td><b>OPTIONS</b></td>
+<td><b>DESCRIPTION</b></td>
 <td></td>
 </tr>
 <tr>
